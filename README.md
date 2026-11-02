@@ -4,6 +4,8 @@ Observations from building [Knowledge Automata](https://github.com/miguelmog10/k
 
 **Short version:** our system prompt was missing the JSON instruction that Cohere's docs ask for, and adding one line fixed it. What's left is a docs question (the failure we got is not the one the docs warn about), plus a few observations.
 
+**Discussion:** [thread in Cohere's Discord, #api-discussions](https://discord.com/channels/954421988141711382/1566840867090600018) (join the Cohere server to open it).
+
 ## Environment
 
 - Model `command-a-plus-05-2026`, Cohere Python SDK 7.3.0, `ClientV2.chat`, `temperature` 0.
