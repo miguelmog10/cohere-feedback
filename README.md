@@ -2,6 +2,8 @@
 
 Observations from building [Knowledge Automata](https://github.com/miguelmog10/knowledge-automata) (Apache 2.0), an open-source multi-agent system on Cohere's Command, Embed and Rerank. Every model reply is parsed strictly as JSON and validated by code, which is how this showed up. Observations only: we can see where the reasoning lands, not what the model does inside.
 
+**Short version:** our system prompt was missing the JSON instruction that Cohere's docs ask for, and adding one line fixed it. What's left is a docs question (the failure we got is not the one the docs warn about), plus a few observations.
+
 ## Environment
 
 - Model `command-a-plus-05-2026`, Cohere Python SDK 7.3.0, `ClientV2.chat`, `temperature` 0.
@@ -76,7 +78,7 @@ The schema goes in the request as a JSON object, in `response_format.json_schema
 | Full schema + "Reply with one JSON object that matches the response schema, and nothing else." at the end of the system prompt | valid JSON, 3 of 3, 272 output tokens each | valid, 3 of 3. 1,165 to 1,756 output tokens (975 to 1,514 reasoning) |
 | Reduced schema, no JSON instruction | valid JSON, 187 output tokens | valid. 2,214 output tokens (1,996 reasoning) |
 
-Only one combination failed: thinking disabled, full schema, no JSON instruction. Earlier data, same system prompt and note: on 2026-10-31 that combination failed 2 of 2 (1,130 and 1,332 output tokens), and thinking enabled passed 2 of 2. In the application's real run, 5 of 6 first attempts failed this way, in two agents with different prompts and schemas.
+Only one combination failed: thinking disabled, full schema, no JSON instruction. Earlier data, same system prompt and note: on 2026-10-31 that combination failed 2 of 2 (1,130 and 1,332 output tokens), and thinking enabled passed 2 of 2. In Knowledge Automata's real run, 5 of 6 first attempts failed this way, in two agents with different prompts and schemas.
 
 ## What we think this shows
 
@@ -113,8 +115,8 @@ Ask for JSON explicitly in the system prompt, whatever the thinking setting. Thi
 
 ## Also observed
 
-- **Reasoning length varies on identical requests.** At `temperature` 0, thinking enabled, the same request used 975, 1,147 and 1,514 reasoning tokens; the thinking-disabled reply was the same each time (272 tokens). In the application, two identical calls of another agent billed 2,882 and 3,383 output tokens.
-- **Timeouts leave nothing to report.** Two calls in the application hit the client timeout (60 s, then 180 s); the identical request then completed in about 18 s. The SDK does not retry a client timeout, and with a non-streaming call there is no response, no `id` and no headers to give support. Cohere's status page showed no incident.
+- **Reasoning length varies on identical requests.** At `temperature` 0, thinking enabled, the same request used 975, 1,147 and 1,514 reasoning tokens; the thinking-disabled reply was the same each time (272 tokens). In Knowledge Automata, two identical calls of another agent billed 2,882 and 3,383 output tokens.
+- **Timeouts leave nothing to report.** Two calls in Knowledge Automata hit the client timeout (60 s, then 180 s); the identical request then completed in about 18 s. The SDK does not retry a client timeout, and with a non-streaming call there is no response, no `id` and no headers to give support. Cohere's status page showed no incident.
 - **Streaming gives IDs early.** With `chat_stream` (one small call, `inspect_headers.py stream`), the response headers arrived after 0.30 s, including `x-debug-trace-id`, and the message ID came with the first event, long before any timeout. Non-streaming, they arrive only with the full reply.
 - **Undocumented fields.** `usage.tokens.reasoning_tokens` is returned but not listed in the Chat API reference's `usage`. `x-debug-trace-id` and `x-envoy-upstream-service-time` are sent but not documented.
 - **Billed input.** Billed input tokens were 553 for both the reduced and full schemas (raw input 692 and 1,026). We assume the schema is not billed as input, but did not find this documented.
