@@ -1,0 +1,8 @@
+# Local environment, rebuilt by `uv sync`
+.venv/
+__pycache__/
+*.pyc
+
+# Secrets: never commit an API key
+.env
+.env.*

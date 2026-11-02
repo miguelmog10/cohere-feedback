@@ -1,0 +1,10 @@
+[project]
+name = "cohere-feedback"
+version = "0.1.0"
+description = "Reproduction and write-up: Command A+ with thinking off can return prose before the JSON in JSON mode"
+readme = "README.md"
+license = "Apache-2.0"
+requires-python = ">=3.13"
+dependencies = [
+    "cohere==7.3.0",
+]
